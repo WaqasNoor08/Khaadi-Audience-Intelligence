@@ -35,6 +35,11 @@ python make_charts.py       # optional static charts
 streamlit run app.py
 ```
 
+## Static version for Vercel
+`web/index.html` is a single static page (no server) with the same five analyses, built from `output/` by `make_web.py`.
+Deploy: on vercel.com choose **Add New > Project**, import this repo, set **Root Directory** to `web`, Framework Preset **Other**, leave the build command empty, and press **Deploy**.
+Rebuild after changing data: `python pipeline.py && python make_web.py`.
+
 ## Data
 `data/comments_project1.csv` = the updated Project 1 results: **21,514 public YouTube comments on 571 Khaadi clothing videos** (126 channels), collected 12 Nov 2026 with the YouTube Data API v3,
 with VADER sentiment and video statistics (`views`, `video_likes`, `video_comment_count`, `video_published_at`, `video_url`, `collection_date`).
