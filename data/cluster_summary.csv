@@ -1,0 +1,4 @@
+price_tier,price_min,price_max,items,comments,positive_pct,neutral_pct,negative_pct,avg_score,positive_rate_lower95,budget_share_pct,budget_pkr
+Budget,1500,2750,16,40,55.0,40.0,5.0,0.291,39.8,25.2,252000.0
+Mid-range,3000,8000,21,92,56.5,35.9,7.6,0.344,46.3,40.7,407000.0
+Premium,17712,32425,17,65,56.9,38.5,4.6,0.377,44.8,34.0,340000.0

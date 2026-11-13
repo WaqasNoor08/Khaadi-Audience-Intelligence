@@ -1,0 +1,10 @@
+cluster,comments,share_pct,top_terms,dominant_rule_topic,dominant_topic_share_pct,actionable_pct,question_pct,positive_pct,negative_pct,roman_urdu_pct,videos,segment
+0,1033,5.44,"ha, ya, ma, sale, shop, kia, kis",Discount / sale,53.34,33.69,19.65,83.16,9.0,45.69,323,"Discount / sale: ha, ya"
+1,914,4.81,"allah, masha, masha allah, ma, sha, sha allah, ma sha",Fans / praise,51.42,10.18,2.63,41.9,3.28,62.25,210,"Fans / praise: allah, masha"
+2,5377,28.31,"hy, shop, price, bhai, please, order, online",Availability / location,50.9,38.78,28.58,23.67,11.25,48.32,521,"Availability / location: hy, shop"
+3,1221,6.43,"plz, reply, bta, den, plz reply, tell, address",Availability / location,63.64,30.38,13.19,77.72,8.11,43.24,326,"Availability / location: plz, reply"
+4,1247,6.56,"sale, kb, kab, sale kb, tak, tk, gi",Discount / sale,85.73,91.26,40.58,19.09,7.7,61.19,294,"Discount / sale: sale, kb"
+5,4163,21.92,"beautiful, collection, love, video, dress, like, dresses",Fans / praise,45.71,8.19,7.98,64.74,3.19,16.53,468,"Fans / praise: beautiful, collection"
+6,1191,6.27,"nice, nice collection, collection, nice video, video, nice sharing, sharing",Fans / praise,91.02,6.38,2.94,97.57,1.18,17.63,331,"Fans / praise: nice, collection"
+7,3849,20.26,"suit, hn, or, ya, bht, nhi, ni",General conversation,64.25,19.28,12.63,20.99,8.39,56.3,466,"General conversation: suit, hn"
+-1,2519,,"(emoji / 1-word comments, not clustered)",Other / general,,5.8,9.13,51.81,0.91,6.15,482,Emoji / very short reactions

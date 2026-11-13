@@ -1,0 +1,11 @@
+,value
+comments,21514.0
+videos,571.0
+k,8.0
+clustered,18995.0
+nmi_cluster_vs_rules,0.193
+silhouette_k4,0.062
+silhouette_k5,0.071
+silhouette_k6,0.088
+silhouette_k7,0.102
+silhouette_k8,0.108
