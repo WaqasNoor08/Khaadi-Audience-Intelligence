@@ -1,5 +1,8 @@
 # Khaadi Audience & Campaign Intelligence Engine
 
+**Vercel Link**
+https://khaadi-audience-intelligence-web-8w.vercel.app/#t0
+
 **Live app: https://khaadi-audience-intelligence.streamlit.app/**
 
 **Project 3** of a Khaadi brand-analytics series (Big Data Analytics, UMT).
