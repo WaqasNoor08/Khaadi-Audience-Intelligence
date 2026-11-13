@@ -68,9 +68,9 @@ with tabs[0]:
             x=alt.X("content_type:N", sort="-y", title=None), y=alt.Y(f"{m}:Q"),
             tooltip=list(g.columns)).properties(height=320), width="stretch")
         st.dataframe(g.round(3), width="stretch", hide_index=True)
-        small = g[g["posts"] < 5]["content_type"].tolist()
+        small = g[g["posts"] < 10]["content_type"].tolist()
         if small:
-            st.warning("Fewer than 5 posts, treat as anecdotal: " + ", ".join(small))
+            st.warning("Fewer than 10 posts, treat as anecdotal (small sample): " + ", ".join(small))
     eid = vf.groupby("eid_campaign").agg(posts=("post_id", "count"), comments=("comments", "sum"),
                                          median_views=("views", "median"),
                                          median_comments_per_1k_views=("comments_per_1k_views", "median")).reset_index()

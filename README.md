@@ -1,9 +1,11 @@
 # Khaadi Audience & Campaign Intelligence Engine
 
+**Live app: https://khaadi-audience-intelligence.streamlit.app/**
+
 **Project 3** of a Khaadi brand-analytics series (Big Data Analytics, UMT).
-- Project 1: YouTube comment scraping + VADER sentiment for Khaadi ([repo](https://github.com/WaqasNoor08/Brand-Sentiment-Analysis-))
+- Project 1: YouTube comment scraping + VADER sentiment for Khaadi clothing videos ([repo](https://github.com/WaqasNoor08/Brand-Sentiment-Analysis-))
 - Project 2: Khaadi price-tier clustering + budget split ([repo](https://github.com/WaqasNoor08/Khaadi-Price-Clustering))
-- **Project 3 (this repo):** clustering-based audience segments, unusual-post detection and marketing recommendations.
+- **Project 3 (this repo):** clustering-based audience segments, unusual-post detection and marketing recommendations, built on 21,514 public YouTube comments on 571 Khaadi clothing videos.
 
 It answers the five questions from the project brief in a small Streamlit app:
 
@@ -14,6 +16,16 @@ It answers the five questions from the project brief in a small Streamlit app:
 | Which patterns are unusual? | Robust z-scores against posts of the same content type + Isolation Forest |
 | Which audience needs should the brand address? | TF-IDF -> SVD -> KMeans on comments (k chosen by silhouette) |
 | What should marketing do next? | Rule-based recommendations, each with its evidence and a confidence note; linked to the Project 2 budget plan |
+
+## Project structure
+```
+app.py                  Streamlit dashboard (6 tabs)
+pipeline.py             analysis: topics, language, clustering, anomalies, recommendations
+make_charts.py          static charts for the report (optional)
+requirements.txt
+data/                   Project 1 comments (+ video stats) and Project 2 budget plan
+output/                 files written by pipeline.py and read by app.py
+```
 
 ## Run
 ```bash
