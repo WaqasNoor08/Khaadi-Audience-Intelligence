@@ -1,0 +1,41 @@
+name: Refresh data
+
+on:
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-refresh.txt
+      - run: pip install -r requirements-refresh.txt
+      - name: Fetch new comments from YouTube
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: python refresh_data.py
+      - name: Rebuild analysis and web page
+        run: |
+          python pipeline.py
+          python make_web.py
+      - name: Commit changes
+        run: |
+          git config user.name "khaadi-insights-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data output web
+          if git diff --cached --quiet; then
+            echo "No new data."
+          else
+            git commit -m "Refresh data $(date -u +%F)"
+            git push
+          fi
