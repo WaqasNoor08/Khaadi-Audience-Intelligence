@@ -28,8 +28,12 @@ It answers the five questions from the project brief in a small Streamlit app:
 
 ## Project structure
 ```
-app.py                  Streamlit dashboard (6 tabs, dark Khaadi theme)
+app.py                  Streamlit dashboard (11 tabs, dark Khaadi theme)
 pipeline.py             analysis: topics, language, clustering, anomalies, recommendations
+insights.py             leads, ready replies, brand health, alerts, weekly plan (called by pipeline.py)
+refresh_data.py         adds new videos / comments from the YouTube API (incremental)
+requirements-refresh.txt packages used by the refresh workflow
+.github/workflows/      refresh.yml: scheduled data refresh
 make_charts.py          static charts for the report (optional)
 requirements.txt
 .streamlit/config.toml   Streamlit theme colours
@@ -37,6 +41,18 @@ docs/                   screenshots used in this README
 data/                   Project 1 comments (+ video stats) and Project 2 budget plan
 output/                 files written by pipeline.py and read by app.py
 ```
+
+## Tabs
+Content, What the audience wants, Unusual posts, Audience segments, What to do next, **Leads** (buying-signal comments, spam removed),
+**Ready replies** (English and Roman Urdu drafts), **Brand health** (0-100 score), **Alerts** (rising topics, negative videos, buying-signal videos),
+**Weekly plan** and About / limits. Reply drafts contain [BRACKETS] that staff must fill in; they are not approved Khaadi wording.
+
+## Keeping the data fresh
+`.github/workflows/refresh.yml` runs every Monday (and on demand from the Actions tab). It adds new videos and comments with `refresh_data.py`,
+reruns `pipeline.py` and `make_web.py`, and commits the result, so Vercel and Streamlit redeploy by themselves.
+Setup: in the repo go to **Settings > Secrets and variables > Actions > New repository secret**, name it `YOUTUBE_API_KEY` and paste your YouTube Data API v3 key.
+Never put the key in a file. A run uses roughly 1,500 of the 10,000 free daily quota units. For a daily run change the cron line to `0 3 * * *`
+(the repo grows faster that way).
 
 ## Run
 ```bash
@@ -86,4 +102,4 @@ All records are real, none simulated (`data_provenance` column). `data/budget_pl
 - Recommendations are hypotheses to A/B test, not proven effects.
 
 ---
-Made by **Waqas Noor** ([GitHub](https://github.com/WaqasNoor08)) · F2023376280 · Section A2 · UMT Lahore
+Made by **Waqas Noor** ([GitHub](https://github.com/WaqasNoor08))

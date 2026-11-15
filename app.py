@@ -4,6 +4,8 @@ Run:  streamlit run app.py     (after  python pipeline.py)
 """
 from pathlib import Path
 
+import json
+
 import altair as alt
 import pandas as pd
 import streamlit as st
@@ -113,6 +115,16 @@ def load():
 
 
 D = load()
+
+
+def _opt(name):
+    f = OUT / name
+    return pd.read_csv(f).fillna("") if f.exists() else None
+
+
+LEADS, LSUM, TPL, HCT, HTR, ALR, PLAN = [_opt(n) for n in (
+    "leads.csv", "lead_summary.csv", "reply_templates.csv", "health_by_content.csv", "health_trend.csv", "alerts.csv", "weekly_plan.csv")]
+IM = json.loads((OUT / "insights_meta.json").read_text(encoding="utf-8")) if (OUT / "insights_meta.json").exists() else {}
 c, v = D["comments_enriched"], D["video_features"]
 
 st.markdown(f"""
@@ -121,7 +133,7 @@ st.markdown(f"""
 <h1>The shoppers under Khaadi's videos are <em>telling you</em> what to launch next.</h1>
 <p>Audience segments, unusual posts and marketing ideas from public YouTube comments on Khaadi clothing videos.
 Project 3 · Big Data Analytics · builds on Project 1 (comment sentiment) and Project 2 (price-tier budget).
-An observational sample, not Khaadi's own analytics.</p>
+An observational sample, not Khaadi's own analytics. Data updated {IM.get('updated', '-')}.</p>
 </div>
 <div class="kp-pills"><a class="pri" href="{VERCEL}" target="_blank">Static version on Vercel</a><a href="{GITHUB}" target="_blank">GitHub</a></div>
 """, unsafe_allow_html=True)
@@ -143,7 +155,8 @@ k3.metric("Positive", f"{100 * (cf['sentiment'] == 'Positive').mean():.1f}%" if 
 k4.metric("Buying-signal comments", f"{100 * cf['actionable'].mean():.1f}%" if len(cf) else "-")
 
 tabs = st.tabs(["1 · Content", "2 · What the audience wants", "3 · Unusual posts", "4 · Audience segments",
-                "5 · What to do next", "About / limits"])
+                "5 · What to do next", "Leads", "Ready replies", "Brand health", "Alerts", "Weekly plan",
+                "About / limits"])
 
 # ---------------------------------------------------------- 1 content ----
 with tabs[0]:
@@ -248,8 +261,95 @@ with tabs[4]:
              f"{disc:.1f}% ask about discounts, so price visibility and sale clarity matter in every tier, "
              "especially Budget and Mid-range where sale content is common.")
 
-# ---------------------------------------------------------------- about ----
+# -------------------------------------------------------------- leads ----
 with tabs[5]:
+    st.subheader("Who is ready to buy?")
+    if LEADS is None:
+        st.info("Run `python pipeline.py` to create the lead list.")
+    else:
+        st.write(f"{IM.get('leads_total', len(LEADS)):,} comments show a buying signal ({IM.get('leads_hot', 0):,} hot: order, contact or delivery). "
+                 f"Spam, links and phone numbers are removed. Below: the {len(LEADS)} most useful (questions first, then most liked).")
+        c1, c2 = st.columns(2)
+        pr = c1.selectbox("Priority", ["All"] + sorted(LEADS["priority"].unique()))
+        tp = c2.selectbox("Topic", ["All"] + sorted(LEADS["topic"].unique()))
+        f = LEADS
+        if pr != "All":
+            f = f[f["priority"] == pr]
+        if tp != "All":
+            f = f[f["topic"] == tp]
+        st.caption(f"{len(f)} comments in this view" + (" (showing 100)" if len(f) > 100 else ""))
+        show(f.head(100)[["priority", "comment", "topic", "language", "likes", "video", "url"]], link_cols={"url": "open"})
+
+# ------------------------------------------------------ ready replies ----
+with tabs[6]:
+    st.subheader("Ready replies")
+    st.write("Draft answers for the most common questions, in English and Roman Urdu. Fill every [BRACKET] with real details "
+             "(price, dates, links) before posting. These are drafts, not approved Khaadi wording. Use the copy icon in each box.")
+    if TPL is None:
+        st.info("Run `python pipeline.py` to create the reply drafts.")
+    else:
+        for _, t in TPL.iterrows():
+            with st.container(border=True):
+                st.markdown(f"**{t['topic']}**")
+                a, b = st.columns(2)
+                a.caption("English")
+                a.code(t["english"], language=None, wrap_lines=True)
+                b.caption("Roman Urdu")
+                b.code(t["roman_urdu"], language=None, wrap_lines=True)
+
+# -------------------------------------------------------- brand health ----
+with tabs[7]:
+    st.subheader("Brand health")
+    h = IM.get("health", {})
+    if not h:
+        st.info("Run `python pipeline.py` to calculate brand health.")
+    else:
+        m1, m2, m3, m4 = st.columns(4)
+        m1.metric("Health score (0-100)", f"{h['score']:.0f}", IM.get("health_label", ""), delta_color="off")
+        m2.metric("Positive", f"{h['positive_pct']:.1f}%")
+        m3.metric("Negative", f"{h['negative_pct']:.1f}%")
+        m4.metric("Complaints", f"{h['complaint_pct']:.1f}%")
+        st.caption("Score = 50 + (positive % - negative %) / 2 - complaint % / 2, kept between 0 and 100. "
+                   "Sentiment is VADER, which under-scores Roman Urdu, so read it as a trend, not an exact grade.")
+        st.markdown("**By content type**")
+        st.altair_chart(alt.Chart(HCT).mark_bar(color="#F6B93B").encode(
+            x=alt.X("content_type:N", sort="-y", title=None, axis=alt.Axis(labelAngle=-30, labelLimit=220)),
+            y=alt.Y("score:Q", scale=alt.Scale(domain=[0, 100]), title="health score"),
+            tooltip=list(HCT.columns)).properties(height=300), width="stretch", theme=None)
+        st.markdown("**By month (comment date, months with at least 100 comments)**")
+        st.altair_chart(alt.Chart(HTR).mark_line(point=True, color="#E8467C").encode(
+            x=alt.X("month:N", title=None), y=alt.Y("score:Q", scale=alt.Scale(domain=[0, 100]), title="health score"),
+            tooltip=list(HTR.columns)).properties(height=300), width="stretch", theme=None)
+
+# -------------------------------------------------------------- alerts ----
+with tabs[8]:
+    st.subheader("Alerts")
+    st.write("Rule-based flags from the latest data: rising topics, videos with unusually many negative comments and videos with many "
+             "buying-signal comments. They are leads to check, not proof of a problem.")
+    if ALR is None or not len(ALR):
+        st.info("No alerts in the latest data.")
+    else:
+        for _, a in ALR.iterrows():
+            with st.container(border=True):
+                st.markdown(f"**{a['severity']}** · **{a['title']}**")
+                link = f" · [open video]({a['url']})" if a["url"] else ""
+                st.caption(f"{a['type']} · {a['detail']}{link}")
+
+# --------------------------------------------------------- weekly plan ----
+with tabs[9]:
+    st.subheader("Weekly plan")
+    st.write("Five actions for the marketing team, built from the numbers on the other tabs. Treat them as hypotheses to test.")
+    if PLAN is None:
+        st.info("Run `python pipeline.py` to create the weekly plan.")
+    else:
+        for _, p_ in PLAN.iterrows():
+            with st.container(border=True):
+                st.markdown(f"**{p_['step']}** - {p_['action']}")
+                link = f" · [open video]({p_['url']})" if p_["url"] else ""
+                st.caption(f"Why: {p_['why']}{link}")
+
+# ---------------------------------------------------------------- about ----
+with tabs[10]:
     st.markdown("""
 **Data.** Public YouTube comments from Project 1, collected 12 Nov 2026 with the YouTube Data API v3 from Khaadi *clothing* videos
 only (perfume, "Khadi" herbal/stationery and IPO videos are filtered out). Video views, likes and publish dates come from the same API.
@@ -267,7 +367,6 @@ st.markdown(f"""
 <div>
 <div class="kp-made">Made by</div>
 <div class="kp-name">Waqas Noor</div>
-<div class="kp-made">F2023376280 · Section A2 · UMT Lahore</div>
 <div class="kp-links"><a href="https://github.com/WaqasNoor08" target="_blank">GitHub profile</a><a href="{GITHUB}" target="_blank">Project code</a><a href="{VERCEL}" target="_blank">Vercel version</a></div>
 </div>
 </div>

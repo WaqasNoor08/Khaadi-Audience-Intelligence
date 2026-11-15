@@ -52,7 +52,17 @@ def build_data():
                      terms=r.top_terms) for r in segs.itertuples()]
     examples = {name: ex[ex.segment == name]["comment"].tolist() for name in seg_names}
 
+    def opt(name):
+        f = OUT / name
+        return pd.read_csv(f).fillna("") if f.exists() else pd.DataFrame()
+    leads = opt("leads.csv")
+    lead_rows = [[r.priority, r.topic, r.comment, r.language, int(r.likes), r.date, r.video, r.url] for r in leads.itertuples()] if len(leads) else []
+    imeta = json.loads((OUT / "insights_meta.json").read_text(encoding="utf-8")) if (OUT / "insights_meta.json").exists() else {}
     return dict(
+        leads=lead_rows, lead_summary=opt("lead_summary.csv").to_dict(orient="records"),
+        tpl=opt("reply_templates.csv").to_dict(orient="records"),
+        hct=opt("health_by_content.csv").to_dict(orient="records"), htr=opt("health_trend.csv").to_dict(orient="records"),
+        alerts=opt("alerts.csv").to_dict(orient="records"), plan=opt("weekly_plan.csv").to_dict(orient="records"), imeta=imeta,
         meta=dict(comments=int(len(c)), videos=int(c["post_id"].nunique()), k=int(run["k"]),
                   silhouette=float(run[f"silhouette_k{int(run['k'])}"]), eligible=int(v["eligible"].sum()),
                   unusual=int(v["unusual"].sum()), github=GITHUB, streamlit=STREAMLIT),
@@ -165,6 +175,19 @@ blockquote{margin:6px 0;padding:8px 12px;background:var(--chip);border-left:3px 
 .maker .made{color:var(--muted);font-size:.82rem}
 .maker .links{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
 footer{color:var(--muted);font-size:.78rem;margin:14px 0 16px;text-align:center}
+.sev{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:999px;margin-right:8px}
+.sev.Watch{background:rgba(246,185,59,.18);color:#ffd98a;border:1px solid rgba(246,185,59,.5)}
+.sev.Review{background:rgba(232,70,124,.18);color:#ffb3cf;border:1px solid rgba(232,70,124,.5)}
+.sev.Opportunity{background:rgba(39,196,176,.16);color:#8ff0e2;border:1px solid rgba(39,196,176,.5)}
+.score{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.score .num{font-family:"Fraunces",Georgia,serif;font-size:3.4rem;font-weight:700;line-height:1;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.reply{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.reply .box{background:var(--chip);border-radius:10px;padding:10px 12px;font-size:.88rem}
+.reply .box small{display:block;color:var(--muted);margin-bottom:4px}
+.copy{margin-top:8px;border:1px solid var(--line);background:var(--bg2);color:var(--ink);border-radius:999px;padding:4px 12px;font-size:.76rem;cursor:pointer}
+.copy:hover{border-color:var(--accent)}
+@media (min-width:900px){.tabs{flex-wrap:wrap;overflow-x:visible}}
+@media (max-width:820px){.reply{grid-template-columns:1fr}}
 @media (max-width:820px){.hero{grid-template-columns:1fr}.print{display:none}nav.top .links{margin-left:0}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
@@ -182,7 +205,7 @@ footer{color:var(--muted);font-size:.78rem;margin:14px 0 16px;text-align:center}
 <h1>The shoppers under Khaadi's videos are <em>telling you</em> what to launch next.</h1>
 <p class="lead">Khaadi Insights reads thousands of public YouTube comments on Khaadi clothing videos. It shows which content gets attention, what buyers ask for, which posts look unusual and what marketing should try next.</p>
 <div class="cta"><a class="btn pri" href="#app">Open the dashboard</a><a class="btn st" href="#" target="_blank" rel="noopener">Try the Streamlit app</a></div>
-<p class="sub">Project 3 &middot; Big Data Analytics &middot; an observational sample of public comments, not Khaadi's own analytics.</p>
+<p class="sub">Project 3 &middot; Big Data Analytics &middot; an observational sample of public comments, not Khaadi's own analytics. Data updated <span id="upd">-</span>.</p>
 </div>
 <div class="mock" aria-label="Example of a buyer comment and the idea it produces">
 <div class="who"><span class="av"></span>Real comment under a Khaadi sale video</div>
@@ -262,6 +285,41 @@ footer{color:var(--muted);font-size:.78rem;margin:14px 0 16px;text-align:center}
 </section>
 
 <section class="tab" id="t5">
+<h2>Who is ready to buy?</h2>
+<p class="sub" id="lead_note"></p>
+<div class="filters"><label>Priority<select id="lp"></select></label><label>Topic<select id="lt"></select></label></div>
+<div class="card bars" id="b_lead"></div>
+<div class="tablewrap card"><table id="tb_lead"></table></div>
+<p class="sub" id="lead_more"></p>
+</section>
+
+<section class="tab" id="t6">
+<h2>Ready replies</h2>
+<p class="sub">Draft answers for the most common questions, in English and Roman Urdu. Fill every [BRACKET] with real details (price, dates, links) before posting. These are drafts, not approved Khaadi wording.</p>
+<div id="replies"></div>
+</section>
+
+<section class="tab" id="t7">
+<h2>Brand health</h2>
+<div class="card score" id="health_top"></div>
+<p class="sub">Score = 50 + (positive % &minus; negative %) / 2 &minus; complaint % / 2, kept between 0 and 100. Sentiment is VADER, which under-scores Roman Urdu, so read it as a trend, not an exact grade.</p>
+<h3>By content type</h3><div class="card bars" id="b_hct"></div>
+<h3>By month (comment date)</h3><div class="card bars" id="b_htr"></div>
+</section>
+
+<section class="tab" id="t8">
+<h2>Alerts</h2>
+<p class="sub">Rule-based flags from the latest data: rising topics, videos with unusually many negative comments and videos with many buying-signal comments. They are leads to check, not proof of a problem.</p>
+<div id="alerts"></div>
+</section>
+
+<section class="tab" id="t9">
+<h2>Weekly plan</h2>
+<p class="sub">Five actions for the marketing team, built from the numbers on the other tabs. Treat them as hypotheses to test.</p>
+<div id="plan"></div>
+</section>
+
+<section class="tab" id="t10">
 <h2>About &amp; limits</h2>
 <p><b>Data.</b> 21,514 public YouTube comments collected on 12 Nov 2026 with the YouTube Data API v3 from 571 Khaadi <i>clothing</i> videos (perfume, "Khadi" herbal/stationery and IPO videos are filtered out). Video views, likes and publish dates come from the same API. All records are real; none are simulated.</p>
 <p><b>Limits.</b> One platform (YouTube); shares are not available; some videos feature several brands (Khaadi only appears in the title); topic rules and language detection are keyword based and Roman Urdu spelling varies; VADER under-scores Roman Urdu; cluster separation is weak, so segments are exploratory. Recommendations are hypotheses to A/B test, not proven effects.</p>
@@ -275,7 +333,6 @@ footer{color:var(--muted);font-size:.78rem;margin:14px 0 16px;text-align:center}
 <div class="txt">
 <div class="made">Made by</div>
 <div class="name">Waqas Noor</div>
-<div class="made">F2023376280 &middot; Section A2 &middot; UMT Lahore</div>
 <div class="links"><a class="btn" href="https://github.com/WaqasNoor08" target="_blank" rel="noopener">GitHub profile</a><a class="btn gh" href="#" target="_blank" rel="noopener">Project code</a><a class="btn st" href="#" target="_blank" rel="noopener">Streamlit app</a></div>
 </div>
 </section>
@@ -387,17 +444,52 @@ function renderRecs(){
   $("p2note").textContent="Project 2 found no significant sentiment difference between price tiers. Here, "+nf(100*p/t.tot,1)+"% of comments ask for prices and "+nf(100*d/t.tot,1)+"% ask about discounts, so price visibility and sale clarity matter in every tier.";
 }
 
+/* ---------- new tabs ---------- */
+function barRows(el,items,full){var max=full||Math.max.apply(null,items.map(function(i){return i[1]}).concat([1]));
+  el.innerHTML=items.map(function(it){return'<div class="row"><div>'+esc(it[0])+(it[3]?' <span class="sub">'+esc(it[3])+'</span>':'')+'</div><div class="track"><div class="fill" style="width:'+(100*it[1]/max)+'%"></div><span class="val">'+it[2]+'</span></div></div>'}).join("")||"No data yet."}
+function renderLeads(){
+  var L=D.leads,im=D.imeta||{};
+  $("lead_note").textContent=nf(im.leads_total||L.length)+" comments show a buying signal ("+nf(im.leads_hot||0)+" hot: order, contact or delivery). Spam, links and phone numbers are removed. Below: the "+nf(L.length)+" most useful (questions first, then most liked).";
+  var pr=Array.from(new Set(L.map(function(r){return r[0]}))),tp=Array.from(new Set(L.map(function(r){return r[1]}))).sort();
+  fillSel($("lp"),pr);fillSel($("lt"),tp);
+  var sm=(D.lead_summary||[]).map(function(r){return[r.priority+" · "+r.topic,r.comments,nf(r.comments)]});
+  barRows($("b_lead"),sm);
+  function draw(){var a=$("lp").value,b=$("lt").value,rows=L.filter(function(r){return(!a||r[0]===a)&&(!b||r[1]===b)}),shown=rows.slice(0,100);
+    $("tb_lead").innerHTML='<tr><th>Priority</th><th>Comment</th><th>Topic</th><th>Language</th><th class="n">Likes</th><th>Video</th></tr>'+shown.map(function(r){
+      return'<tr><td><span class="sev '+(r[0]==="Hot"?"Review":"Watch")+'">'+esc(r[0])+'</span></td><td>'+esc(r[2])+'</td><td>'+esc(r[1])+'</td><td>'+esc(r[3])+'</td><td class="n">'+r[4]+'</td><td><a href="'+esc(r[7])+'" target="_blank" rel="noopener">'+esc(r[6].slice(0,50))+'</a></td></tr>'}).join("");
+    $("lead_more").textContent=rows.length>100?"Showing 100 of "+rows.length+" in this view. Use the filters to narrow down.":rows.length+" comments in this view."}
+  $("lp").onchange=draw;$("lt").onchange=draw;draw();
+}
+function renderReplies(){
+  $("replies").innerHTML=D.tpl.map(function(t,i){return'<div class="card"><b>'+esc(t.topic)+'</b><div class="reply" style="margin-top:8px"><div class="box"><small>English</small><span id="re'+i+'">'+esc(t.english)+'</span><br><button class="copy" data-c="re'+i+'">Copy</button></div><div class="box"><small>Roman Urdu</small><span id="rr'+i+'">'+esc(t.roman_urdu)+'</span><br><button class="copy" data-c="rr'+i+'">Copy</button></div></div></div>'}).join("");
+  $("replies").onclick=function(ev){var b=ev.target.closest(".copy");if(!b)return;var t=$(b.getAttribute("data-c")).textContent;
+    try{navigator.clipboard.writeText(t).then(function(){b.textContent="Copied"},function(){b.textContent="Select and copy"})}catch(e){b.textContent="Select and copy"}
+    setTimeout(function(){b.textContent="Copy"},1600)}
+}
+function renderHealth(){
+  var im=D.imeta||{},h=im.health||{};
+  $("health_top").innerHTML='<div class="num">'+(h.score==null?"-":nf(h.score,0))+'</div><div><b>'+esc(im.health_label||"")+'</b><div class="sub">'+nf(h.comments||0)+' comments &middot; '+nf(h.positive_pct||0,1)+'% positive &middot; '+nf(h.negative_pct||0,1)+'% negative &middot; '+nf(h.complaint_pct||0,1)+'% complaints</div></div>';
+  barRows($("b_hct"),D.hct.map(function(r){return[r.content_type,r.score,nf(r.score,0),"("+nf(r.comments)+" comments)"]}),100);
+  barRows($("b_htr"),D.htr.map(function(r){return[r.month,r.score,nf(r.score,0),"("+nf(r.comments)+")"]}),100);
+}
+function renderAlerts(){
+  $("alerts").innerHTML=D.alerts.length?D.alerts.map(function(a){return'<div class="card"><span class="sev '+esc(a.severity)+'">'+esc(a.severity)+'</span><b>'+esc(a.title)+'</b><div class="sub" style="margin-top:6px">'+esc(a.type)+' &middot; '+esc(a.detail)+(a.url?' &middot; <a href="'+esc(a.url)+'" target="_blank" rel="noopener">open video</a>':'')+'</div></div>'}).join(""):'<div class="card">No alerts in the latest data.</div>';
+}
+function renderPlan(){
+  $("plan").innerHTML=D.plan.map(function(p){return'<div class="card rec"><b>'+esc(p.step)+'</b> &ndash; '+esc(p.action)+'<small>Why: '+esc(p.why)+(p.url?' &middot; <a href="'+esc(p.url)+'" target="_blank" rel="noopener">open video</a>':'')+'</small></div>'}).join("");
+}
+
 /* ---------- tabs ---------- */
-var NAMES=["1 · Content","2 · What the audience wants","3 · Unusual posts","4 · Audience segments","5 · What to do next","About / limits"];
+var NAMES=["1 · Content","2 · What the audience wants","3 · Unusual posts","4 · Audience segments","5 · What to do next","Leads","Ready replies","Brand health","Alerts","Weekly plan","About / limits"];
 $("tabs").innerHTML=NAMES.map(function(n,i){return'<button role="tab" data-t="'+i+'" aria-selected="'+(i===0)+'">'+n+'</button>'}).join("");
 function show(i){Array.prototype.forEach.call($("tabs").children,function(b){b.setAttribute("aria-selected",String(+b.getAttribute("data-t")===i))});
-  for(var k=0;k<6;k++)$("t"+k).className="tab"+(k===i?" on":"");history.replaceState(null,"","#t"+i)}
+  for(var k=0;k<NAMES.length;k++)$("t"+k).className="tab"+(k===i?" on":"");history.replaceState(null,"","#t"+i)}
 $("tabs").onclick=function(ev){var b=ev.target.closest("button");if(b)show(+b.getAttribute("data-t"))};
 
 (function(){var t=tally(D.cube,2),l=tally(D.cube,1),a=0;D.cube.forEach(function(r){if(D.action.indexOf(r[2])>=0)a+=r[4]});
   $("hs1").textContent=nf(D.meta.comments);$("hs2").textContent=nf(D.meta.videos);$("hs3").textContent=nf(100*a/t.tot,0)+"%";$("hs4").textContent=nf(100*(l.m["Roman Urdu"]||0)/l.tot,0)+"%"})();
-renderContent();refresh();renderUnusual();renderSegments();renderRecs();
-var h=/^#t([0-5])$/.exec(location.hash);show(h?+h[1]:0);
+renderContent();refresh();renderUnusual();renderSegments();renderRecs();renderLeads();renderReplies();renderHealth();renderAlerts();renderPlan();$("upd").textContent=(D.imeta&&D.imeta.updated)||"-";
+var h=/^#t(\d+)$/.exec(location.hash);show(h&&+h[1]<NAMES.length?+h[1]:0);
 })();
 </script>
 </body>

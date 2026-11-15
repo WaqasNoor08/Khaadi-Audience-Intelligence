@@ -399,6 +399,8 @@ def main(include_all=False, include_perfume=False):
                "nmi_cluster_vs_rules": round(meta["nmi"], 3),
                **{f"silhouette_k{k}": round(s, 3) for k, s in meta["silhouette"].items()}}
               ).to_csv(OUT / "run_summary.csv", header=["value"])
+    import insights
+    insights.write(d, v, ct, OUT)
     print(f"videos={d['post_id'].nunique()} k={meta['best_k']} NMI={meta['nmi']:.3f}")
     print("silhouette:", {k: round(s, 3) for k, s in meta["silhouette"].items()})
     print(f"unusual posts: {int(v['unusual'].sum())} of {int(v['eligible'].sum())} eligible")
