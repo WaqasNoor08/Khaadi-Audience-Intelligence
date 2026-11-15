@@ -1,14 +1,14 @@
 {
- "updated": "2026-11-12",
+ "updated": "2026-11-15",
  "health": {
-  "comments": 21514,
-  "positive_pct": 45.0,
+  "comments": 22504,
+  "positive_pct": 45.2,
   "negative_pct": 6.6,
   "complaint_pct": 1.7,
-  "score": 68.3
+  "score": 68.5
  },
  "health_label": "Healthy",
- "leads_total": 5145,
- "leads_hot": 1115,
+ "leads_total": 5355,
+ "leads_hot": 1203,
  "leads_shown": 500
 }
