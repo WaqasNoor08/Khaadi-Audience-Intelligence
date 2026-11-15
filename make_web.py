@@ -71,11 +71,11 @@ TEMPLATE = r"""<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>KhaadiPulse · Khaadi Audience &amp; Campaign Intelligence</title>
+<title>Khaadi Insights · Khaadi Audience &amp; Campaign Intelligence</title>
 <meta name="theme-color" content="#0E0B1F">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&display=swap" rel="stylesheet">
-<meta name="description" content="KhaadiPulse: audience segments, unusual-post detection and marketing ideas from 21,514 public YouTube comments on Khaadi clothing videos.">
+<meta name="description" content="Khaadi Insights: audience segments, unusual-post detection and marketing ideas from 21,514 public YouTube comments on Khaadi clothing videos.">
 <style>
 :root{color-scheme:dark;--bg:#0E0B1F;--bg2:#15112B;--card:#1B1636;--ink:#F7F1E6;--muted:#A8A1C4;--line:#2E2753;--accent:#F6B93B;--accent2:#E8467C;--teal:#27C4B0;--chip:#261F4A;--red:#E8467C;--green:#27C4B0}
 *{box-sizing:border-box}
@@ -172,7 +172,7 @@ footer{color:var(--muted);font-size:.78rem;margin:14px 0 16px;text-align:center}
 <body>
 <div class="wrap">
 <nav class="top">
-<a class="brand" href="#"><span class="dot"></span>Khaadi<b>Pulse</b></a>
+<a class="brand" href="#"><span class="dot"></span>Khaadi <b>Insights</b></a>
 <div class="links"><a href="#how">How it works</a><a class="gh" href="#" target="_blank" rel="noopener">GitHub</a><a class="st" href="#" target="_blank" rel="noopener">Streamlit version</a><a class="btn pri" href="#app">Open the dashboard</a></div>
 </nav>
 
@@ -180,7 +180,7 @@ footer{color:var(--muted);font-size:.78rem;margin:14px 0 16px;text-align:center}
 <div class="print" aria-hidden="true"></div>
 <div>
 <h1>The shoppers under Khaadi's videos are <em>telling you</em> what to launch next.</h1>
-<p class="lead">KhaadiPulse reads thousands of public YouTube comments on Khaadi clothing videos. It shows which content gets attention, what buyers ask for, which posts look unusual and what marketing should try next.</p>
+<p class="lead">Khaadi Insights reads thousands of public YouTube comments on Khaadi clothing videos. It shows which content gets attention, what buyers ask for, which posts look unusual and what marketing should try next.</p>
 <div class="cta"><a class="btn pri" href="#app">Open the dashboard</a><a class="btn st" href="#" target="_blank" rel="noopener">Try the Streamlit app</a></div>
 <p class="sub">Project 3 &middot; Big Data Analytics &middot; an observational sample of public comments, not Khaadi's own analytics.</p>
 </div>
@@ -279,7 +279,7 @@ footer{color:var(--muted);font-size:.78rem;margin:14px 0 16px;text-align:center}
 <div class="links"><a class="btn" href="https://github.com/WaqasNoor08" target="_blank" rel="noopener">GitHub profile</a><a class="btn gh" href="#" target="_blank" rel="noopener">Project code</a><a class="btn st" href="#" target="_blank" rel="noopener">Streamlit app</a></div>
 </div>
 </section>
-<footer>&copy; 2026 KhaadiPulse &middot; Made by Waqas Noor &middot; Student project, not affiliated with Khaadi.</footer>
+<footer>&copy; 2026 Khaadi Insights &middot; Made by Waqas Noor &middot; Student project, not affiliated with Khaadi.</footer>
 </div>
 
 <script id="data" type="application/json">__DATA__</script>

@@ -8,14 +8,14 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
-st.set_page_config(page_title="KhaadiPulse · Audience Intelligence", page_icon="👗", layout="wide")
+st.set_page_config(page_title="Khaadi Audience Intelligence", page_icon="👗", layout="wide")
 STYLE = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&display=swap');
 html, body, [class*="css"], .stApp {font-family:'DM Sans',sans-serif;}
 .stApp {background:radial-gradient(900px 500px at 85% -5%,rgba(232,70,124,.22),transparent 60%),
         radial-gradient(800px 480px at -5% 8%,rgba(246,185,59,.16),transparent 60%),#0E0B1F;}
-.block-container {padding-top:1.4rem; max-width:1180px;}
+.block-container {padding-top:3.4rem; max-width:1180px;}
 .kp-brand {font-family:'Fraunces',Georgia,serif; font-size:1.5rem; font-weight:700; letter-spacing:-.02em;}
 .kp-brand b {background:linear-gradient(90deg,#F6B93B,#E8467C); -webkit-background-clip:text; background-clip:text; color:transparent;}
 .kp-hero h1 {font-family:'Fraunces',Georgia,serif; font-size:clamp(1.9rem,4.5vw,3rem); line-height:1.08; letter-spacing:-.025em; margin:.3rem 0 .6rem; padding:0;}
@@ -39,12 +39,64 @@ h2, h3 {font-family:'Fraunces',Georgia,serif; letter-spacing:-.01em;}
 .kp-name {font-family:'Fraunces',Georgia,serif; font-size:1.35rem; font-weight:700;}
 .kp-links a {display:inline-block; margin:10px 8px 0 0; padding:7px 16px; border-radius:999px; border:1px solid #2E2753; color:#F7F1E6; text-decoration:none; font-weight:600; font-size:.85rem;}
 .kp-foot {color:#A8A1C4; font-size:.78rem; text-align:center; margin:.8rem 0 1rem;}
+
+.stApp, .stApp p, .stApp li, .stApp label, .stApp span, .stApp div[data-testid="stMarkdownContainer"] {color:#F7F1E6;}
+.stApp h1, .stApp h2, .stApp h3, .stApp h4 {color:#F7F1E6 !important;}
+[data-testid="stHeader"] {background:transparent;}
+[data-testid="stSidebar"] {background:#15112B;}
+[data-testid="stMetricLabel"], [data-testid="stMetricLabel"] * {color:#cfc8ea !important;}
+[data-testid="stMetricValue"], [data-testid="stMetricValue"] * {color:#F6B93B !important;}
+[data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] * {color:#bdb6da !important;}
+.stTabs [data-baseweb="tab"] p {color:#cfc8ea !important;}
+.stTabs [aria-selected="true"] p {color:#1a1030 !important;}
+[data-baseweb="select"] > div {background:#1B1636 !important; color:#F7F1E6 !important; border-color:#2E2753 !important;}
+[data-baseweb="select"] * {color:#F7F1E6 !important;}
+[data-baseweb="tag"] {background:#E8467C !important;}
+[data-baseweb="tag"] * {color:#1a1030 !important;}
+.kp-name {color:#F7F1E6 !important;}
+.kp-made {color:#cfc8ea !important;}
+.kp-links a, .kp-pills a {color:#F7F1E6 !important;}
+.kp-pills a.pri {color:#1a1030 !important;}
+.kp-tw {overflow-x:auto; background:#1B1636; border:1px solid #2E2753; border-radius:14px; margin:.5rem 0 1rem;}
+table.kp-table {border-collapse:collapse; width:100%; font-size:.84rem; color:#F7F1E6;}
+table.kp-table th {color:#F6B93B; text-align:left; padding:9px 10px; border-bottom:1px solid #2E2753; white-space:nowrap; background:#1B1636;}
+table.kp-table td {padding:8px 10px; border-bottom:1px solid #2E2753; vertical-align:top; color:#F7F1E6;}
+table.kp-table td a {color:#ffd98a !important;}
 </style>
 """
 st.markdown(STYLE, unsafe_allow_html=True)
 PAL = ["#F6B93B", "#E8467C", "#27C4B0", "#8E7CFF", "#FF8A5B", "#7BD88F", "#4DA3FF", "#F28BB8", "#C9B6FF"]
 GITHUB = "https://github.com/WaqasNoor08/Khaadi-Audience-Intelligence"
 VERCEL = "https://khaadi-audience-intelligence-web-8w.vercel.app/"
+BRAND_A, BRAND_B = "Khaadi ", "Insights"
+
+
+def _kp_theme():
+    return {"config": {"background": "#1B1636", "view": {"stroke": "transparent"},
+                       "axis": {"labelColor": "#cfc8ea", "titleColor": "#cfc8ea", "gridColor": "#2E2753",
+                                "domainColor": "#2E2753", "tickColor": "#2E2753"},
+                       "legend": {"labelColor": "#cfc8ea", "titleColor": "#cfc8ea"}}}
+
+
+alt.themes.register("khaadi", _kp_theme)
+alt.themes.enable("khaadi")
+
+
+def show(df, index=False, link_cols=None, **_ignored):
+    """Dark, always-readable HTML table (replaces st.dataframe / st.table)."""
+    import html as _h
+    df = df.copy()
+    if index:
+        df = df.reset_index()
+    df = df.fillna("")
+    for col in df.columns:
+        if not pd.api.types.is_numeric_dtype(df[col]) and not pd.api.types.is_bool_dtype(df[col]):
+            df[col] = df[col].map(lambda x: _h.escape(str(x)))
+    for col, label in (link_cols or {}).items():
+        df[col] = df[col].map(lambda u: f'<a href="{u}" target="_blank" rel="noopener">{label}</a>' if u else "")
+    st.markdown('<div class="kp-tw">' + df.to_html(index=False, escape=False, border=0, classes="kp-table") + "</div>",
+                unsafe_allow_html=True)
+
 BASE = Path(__file__).parent
 OUT, DATA = BASE / "output", BASE / "data"
 
@@ -64,7 +116,7 @@ D = load()
 c, v = D["comments_enriched"], D["video_features"]
 
 st.markdown(f"""
-<div class="kp-brand">Khaadi<b>Pulse</b></div>
+<div class="kp-brand">{BRAND_A}<b>{BRAND_B}</b></div>
 <div class="kp-hero">
 <h1>The shoppers under Khaadi's videos are <em>telling you</em> what to launch next.</h1>
 <p>Audience segments, unusual posts and marketing ideas from public YouTube comments on Khaadi clothing videos.
@@ -108,9 +160,9 @@ with tabs[0]:
         m = st.selectbox("Metric", ["median_comments_per_1k_views", "median_views", "median_like_rate", "comments",
                                     "median_likes_per_comment", "median_buying_signal", "median_positive"])
         st.altair_chart(alt.Chart(g).mark_bar(color="#F6B93B").encode(
-            x=alt.X("content_type:N", sort="-y", title=None), y=alt.Y(f"{m}:Q"),
-            tooltip=list(g.columns)).properties(height=320), width="stretch")
-        st.dataframe(g.round(3), width="stretch", hide_index=True)
+            x=alt.X("content_type:N", sort="-y", title=None, axis=alt.Axis(labelAngle=-30, labelLimit=220)), y=alt.Y(f"{m}:Q"),
+            tooltip=list(g.columns)).properties(height=320), width="stretch", theme=None)
+        show(g.round(3), width="stretch", hide_index=True)
         small = g[g["posts"] < 10]["content_type"].tolist()
         if small:
             st.warning("Fewer than 10 posts, treat as anecdotal (small sample): " + ", ".join(small))
@@ -119,7 +171,7 @@ with tabs[0]:
                                          median_comments_per_1k_views=("comments_per_1k_views", "median")).reset_index()
     eid["eid_campaign"] = eid["eid_campaign"].map({True: "Eid campaign", False: "Other"})
     st.markdown("**Eid vs other campaigns**")
-    st.dataframe(eid, width="stretch", hide_index=True)
+    show(eid, width="stretch", hide_index=True)
 
 # ------------------------------------------------------- 2 audience ----
 with tabs[1]:
@@ -129,16 +181,16 @@ with tabs[1]:
     t["share_pct"] = (100 * t["comments"] / max(len(cf), 1)).round(1)
     a.altair_chart(alt.Chart(t).mark_bar(color="#E8467C").encode(
         y=alt.Y("topic:N", sort="-x", title=None), x="comments:Q", tooltip=["topic", "comments", "share_pct"]
-    ).properties(height=330), width="stretch")
+    ).properties(height=330), width="stretch", theme=None)
     lg = cf["language_type"].value_counts().rename_axis("language").reset_index(name="comments")
     b.altair_chart(alt.Chart(lg).mark_arc(innerRadius=50).encode(
-        theta="comments:Q", color=alt.Color("language:N", scale=alt.Scale(range=PAL)), tooltip=["language", "comments"]).properties(height=330), width="stretch")
+        theta="comments:Q", color=alt.Color("language:N", scale=alt.Scale(range=PAL)), tooltip=["language", "comments"]).properties(height=330), width="stretch", theme=None)
     st.markdown("**Topic by language** (share of each language's comments)")
     ct = pd.crosstab(cf["topic"], cf["language_type"], normalize="columns").mul(100).round(1)
-    st.dataframe(ct, width="stretch")
+    show(ct, index=True)
     topic = st.selectbox("See example comments for a topic", t["topic"].tolist() if len(t) else [])
     if topic:
-        st.dataframe(cf[cf["topic"] == topic][["comment", "language_type", "sentiment", "video_title"]].head(25),
+        show(cf[cf["topic"] == topic][["comment", "language_type", "sentiment", "video_title"]].head(25),
                      width="stretch", hide_index=True)
     st.caption("Topics come from transparent keyword rules (see pipeline.py). They are a first pass: about "
                f"{100 * (c['topic'] == 'Other / general').mean():.0f}% of comments fit no rule.")
@@ -155,13 +207,13 @@ with tabs[2]:
         y=alt.Y("pos_rate:Q", title="Share positive"),
         color=alt.Color("unusual:N", scale=alt.Scale(domain=[True, False], range=["#E8467C", "#8a83b5"])),
         tooltip=["post_id", "video_title", "content_type", "views", "comments", "why_unusual"]).properties(height=360)
-    st.altair_chart(sc, width="stretch")
+    st.altair_chart(sc, width="stretch", theme=None)
     un = vf[vf["unusual"]].sort_values("max_abs_z", ascending=False)
     st.markdown(f"**{len(un)} unusual posts** of {len(el)} checked")
-    st.dataframe(un[["post_id", "video_title", "video_url", "content_type", "views", "days_since_post", "comments", "pos_rate",
+    show(un[["post_id", "video_title", "video_url", "content_type", "views", "days_since_post", "comments", "pos_rate",
                      "neg_rate", "question_rate", "why_unusual"]].round(2),
                  width="stretch", hide_index=True,
-                 column_config={"video_url": st.column_config.LinkColumn("video", display_text="open")})
+                 link_cols={"video_url": "open"})
 
 # --------------------------------------------------------- 4 segments ----
 with tabs[3]:
@@ -171,13 +223,13 @@ with tabs[3]:
     st.write(f"TF-IDF + SVD + KMeans on {int(rs['clustered'])} comments with at least two content words, k = {int(rs['k'])} chosen by silhouette. "
              f"Silhouette is low ({rs['silhouette_k' + str(int(rs['k']))]:.2f}): short mixed-language comments do not separate cleanly, "
              "so treat segments as exploratory.")
-    st.dataframe(cs[["segment", "comments", "share_pct", "actionable_pct", "question_pct", "positive_pct", "negative_pct",
+    show(cs[["segment", "comments", "share_pct", "actionable_pct", "question_pct", "positive_pct", "negative_pct",
                      "roman_urdu_pct", "top_terms"]], width="stretch", hide_index=True)
     st.altair_chart(alt.Chart(cm).mark_circle(size=28, opacity=0.6).encode(
         x=alt.X("x:Q", title="PCA 1"), y=alt.Y("y:Q", title="PCA 2"), color=alt.Color("segment:N", scale=alt.Scale(range=PAL)),
-        tooltip=["segment", "comment"]).properties(height=420), width="stretch")
+        tooltip=["segment", "comment"]).properties(height=420), width="stretch", theme=None)
     seg = st.selectbox("Example comments for a segment", ex["segment"].unique())
-    st.table(ex[ex["segment"] == seg][["comment"]])
+    show(ex[ex["segment"] == seg][["comment"]])
 
 # ------------------------------------------------------ 5 recommendations ----
 with tabs[4]:
@@ -189,7 +241,7 @@ with tabs[4]:
             st.caption(f"Evidence: {row['evidence']}  ·  Confidence: {row['confidence']}")
     st.markdown("### Link with Project 2 (price tiers & budget)")
     bp = pd.read_csv(DATA / "budget_plan.csv")
-    st.dataframe(bp, width="stretch", hide_index=True)
+    show(bp, width="stretch", hide_index=True)
     disc = 100 * (c["topic"] == "Discount / sale").mean()
     price = 100 * (c["topic"] == "Price inquiry").mean()
     st.write(f"Project 2 showed no significant sentiment difference between price tiers. Here, {price:.1f}% of comments ask for prices and "
@@ -219,5 +271,5 @@ st.markdown(f"""
 <div class="kp-links"><a href="https://github.com/WaqasNoor08" target="_blank">GitHub profile</a><a href="{GITHUB}" target="_blank">Project code</a><a href="{VERCEL}" target="_blank">Vercel version</a></div>
 </div>
 </div>
-<div class="kp-foot">© 2026 KhaadiPulse · Made by Waqas Noor · Student project, not affiliated with Khaadi.</div>
+<div class="kp-foot">© 2026 {BRAND_A}{BRAND_B} · Made by Waqas Noor · Student project, not affiliated with Khaadi.</div>
 """, unsafe_allow_html=True)
