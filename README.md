@@ -1,6 +1,8 @@
-# Khaadi Audience & Campaign Intelligence Engine
+# Khaadi Insights: Audience & Campaign Intelligence Engine
 
-**Vercel Link:** 
+![Khaadi Insights home page](docs/hero.png)
+
+**Vercel Link**
 https://khaadi-audience-intelligence-web-8w.vercel.app/#t0
 
 **Live app: https://khaadi-audience-intelligence.streamlit.app/**
@@ -20,12 +22,18 @@ It answers the five questions from the project brief in a small Streamlit app:
 | Which audience needs should the brand address? | TF-IDF -> SVD -> KMeans on comments (k chosen by silhouette) |
 | What should marketing do next? | Rule-based recommendations, each with its evidence and a confidence note; linked to the Project 2 budget plan |
 
+## Screenshots
+
+![Khaadi Insights dashboard](docs/dashboard.png)
+
 ## Project structure
 ```
-app.py                  Streamlit dashboard (6 tabs)
+app.py                  Streamlit dashboard (6 tabs, dark Khaadi theme)
 pipeline.py             analysis: topics, language, clustering, anomalies, recommendations
 make_charts.py          static charts for the report (optional)
 requirements.txt
+.streamlit/config.toml   Streamlit theme colours
+docs/                   screenshots used in this README
 data/                   Project 1 comments (+ video stats) and Project 2 budget plan
 output/                 files written by pipeline.py and read by app.py
 ```
@@ -76,3 +84,6 @@ All records are real, none simulated (`data_provenance` column). `data/budget_pl
 - Topic and language detection use keyword rules; ~47% of comments match no topic.
 - VADER under-scores Roman Urdu, so "neutral" and "negative" are approximate.
 - Recommendations are hypotheses to A/B test, not proven effects.
+
+---
+Made by **Waqas Noor** ([GitHub](https://github.com/WaqasNoor08)) · F2023376280 · Section A2 · UMT Lahore

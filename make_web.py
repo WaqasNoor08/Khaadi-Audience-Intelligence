@@ -93,7 +93,7 @@ nav.top{display:flex;align-items:center;gap:18px;padding:16px 0;flex-wrap:wrap}
 .brand b{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--accent2);box-shadow:0 0 0 4px rgba(232,70,124,.25)}
 nav.top .links{margin-left:auto;display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:.9rem}
-nav.top .links a{color:var(--muted);text-decoration:none}nav.top .links a:hover{color:var(--ink)}
+nav.top .links a{color:var(--muted);text-decoration:none}nav.top .links a:hover{color:var(--ink)}nav.top .links a.btn.pri{color:#1a1030}
 .btn{display:inline-block;padding:10px 18px;border-radius:999px;font-weight:600;text-decoration:none;font-size:.92rem;border:1px solid var(--line);color:var(--ink);background:transparent}
 .btn.pri{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#1a1030;border:0}
 .btn:hover{filter:brightness(1.08)}
@@ -139,7 +139,7 @@ section.tab{display:none}section.tab.on{display:block}
 .bars .row{display:grid;grid-template-columns:minmax(90px,34%) 1fr;gap:10px;align-items:center;margin:7px 0;font-size:.86rem}
 .bars .track{background:var(--chip);border-radius:8px;height:24px;position:relative;overflow:hidden}
 .bars .fill{background:linear-gradient(90deg,var(--accent2),var(--accent));height:100%;border-radius:8px}
-.bars .val{position:absolute;right:8px;top:0;line-height:24px;font-size:.78rem;color:var(--ink);text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.bars .val{position:absolute;right:6px;top:3px;line-height:18px;padding:0 7px;border-radius:6px;font-size:.78rem;color:var(--ink);background:rgba(14,11,31,.7)}
 .tablewrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.82rem}
 th,td{border-bottom:1px solid var(--line);padding:8px 9px;text-align:left;vertical-align:top}th{color:var(--accent);font-weight:600}
