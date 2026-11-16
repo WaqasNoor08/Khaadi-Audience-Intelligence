@@ -1,10 +1,10 @@
 cluster,comments,share_pct,top_terms,dominant_rule_topic,dominant_topic_share_pct,actionable_pct,question_pct,positive_pct,negative_pct,roman_urdu_pct,videos,segment
-0,1273,6.4,"sale, kb, kab, sale kb, tak, tk, gi",Discount / sale,85.15,90.73,40.85,19.4,7.38,61.04,309,"Discount / sale: sale, kb"
-1,3754,18.88,"suit, hn, or, bht, nhi, ni, jo",General conversation,64.92,19.37,13.16,20.09,9.48,56.58,494,"General conversation: suit, hn"
-2,4432,22.29,"beautiful, collection, love, good, video, dress, dresses",Fans / praise,46.14,8.3,7.24,66.49,3.32,14.4,519,"Fans / praise: beautiful, collection"
-3,1309,6.58,"plz, no, reply, bta, send, plz reply, tell",Availability / location,64.4,30.02,12.45,76.09,10.24,40.79,335,"Availability / location: plz, no"
-4,5033,25.31,"hy, shop, price, please, order, online, kia",Availability / location,49.59,42.48,30.96,23.11,10.95,50.84,542,"Availability / location: hy, shop"
-5,1778,8.94,"allah, bhai, masha, masha allah, mashaallah, ameen, pak",General conversation,46.46,11.7,3.15,33.52,3.99,56.47,270,"General conversation: allah, bhai"
-6,1066,5.36,"ha, ya, ma, sale, shop, kia, kis",Discount / sale,53.19,33.58,19.42,83.68,8.72,45.87,333,"Discount / sale: ha, ya"
-7,1237,6.22,"nice, nice collection, collection, nice video, video, nice sharing, sharing",Fans / praise,90.54,6.71,3.23,97.57,1.13,18.03,346,"Fans / praise: nice, collection"
--1,2622,,"(emoji / 1-word comments, not clustered)",Other / general,,5.64,8.81,52.4,0.99,6.29,503,Emoji / very short reactions
+0,1068,5.36,"ha, ya, ma, sale, shop, kia, kis",Discount / sale,53.28,33.33,19.38,83.71,8.61,45.79,338,"Discount / sale: ha, ya"
+1,1815,9.1,"allah, masha, masha allah, mashallah, ameen, pak, sha",Fans / praise,50.36,7.05,1.49,34.21,2.31,50.69,323,"Fans / praise: allah, masha"
+2,2364,11.86,"nice, collection, beautiful, good, nice collection, sharing, nice video",Fans / praise,83.5,6.18,3.13,90.78,1.18,17.34,444,"Fans / praise: nice, collection"
+3,2942,14.76,"love, video, like, thanks, ur, number, best",Fans / praise,50.34,14.92,10.16,66.76,5.1,13.36,442,"Fans / praise: love, video"
+4,5370,26.94,"hy, shop, price, please, bhai, order, online",Availability / location,52.63,38.34,28.62,22.79,7.73,50.78,554,"Availability / location: hy, shop"
+5,1299,6.52,"sale, kb, kab, sale kb, tak, tk, gi",Discount / sale,85.22,90.53,40.42,20.32,7.78,60.82,309,"Discount / sale: sale, kb"
+6,1237,6.21,"plz, reply, bta, plz reply, tell, den, address",Availability / location,63.14,30.72,12.77,79.95,8.49,41.88,331,"Availability / location: plz, reply"
+7,3840,19.26,"suit, hn, kia, or, nhi, ni, mil",General conversation,65.16,19.84,14.01,18.83,13.8,55.47,499,"General conversation: suit, hn"
+-1,2628,,"(emoji / 1-word comments, not clustered)",Other / general,,5.63,8.79,52.44,0.99,6.28,506,Emoji / very short reactions
